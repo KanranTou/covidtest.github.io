@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Evaluar Síntomas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .question-container {
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        .btn-yes,
+        .btn-no {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .btn-yes:hover,
+        .btn-no:hover {
+            background-color: #e0e0e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-container {
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        .result {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .result.positive {
+            background-color: #50ff50;
+            /* Verde */
+        }
+
+        .result.negative {
+            background-color: #ff5050;
+            /* Rojo */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Responde a las preguntas:</h1>
+    <form method="post" action="/process" id="symptom-form">
+        <div class="question-container" id="question-1">
+            <p>¿Tienes dificultad para respirar?</p>
+            <button type="button" class="btn-yes" onclick="nextQuestion('Sí')">Sí</button>
+            <button type="button" class="btn-no" onclick="nextQuestion('No')">No</button>
+        </div>
+        <div class="question-container hidden" id="question-2">
+            <p>¿Tienes dolor de garganta?</p>
+            <button type="button" class="btn-yes" onclick="nextQuestion('Sí')">Sí</button>
+            <button type="button" class="btn-no" onclick="nextQuestion('No')">No</button>
+        </div>
+        <div class="question-container hidden" id="question-3">
+            <p>¿Tienes tos?</p>
+            <button type="button" class="btn-yes" onclick="nextQuestion('Sí')">Sí</button>
+            <button type="button" class="btn-no" onclick="nextQuestion('No')">No</button>
+        </div>
+        <div class="question-container hidden" id="question-4">
+            <p>¿Tienes fiebre?</p>
+            <button type="button" class="btn-yes" onclick="nextQuestion('Sí')">Sí</button>
+            <button type="button" class="btn-no" onclick="nextQuestion('No')">No</button>
+        </div>
+        <div class="question-container hidden" id="question-5">
+            <p>¿Tienes dolor de cabeza?</p>
+            <button type="button" class="btn-yes" onclick="nextQuestion('Sí')">Sí</button>
+            <button type="button" class="btn-no" onclick="nextQuestion('No')">No</button>
+        </div>
+        <input type="hidden" name="shortness_of_breath">
+        <input type="hidden" name="sore_throat">
+        <input type="hidden" name="cough">
+        <input type="hidden" name="fever">
+        <input type="hidden" name="head_ache">
+    </form>
+
+    <!-- Contenedor para el resultado -->
+    <div class="result-container hidden" id="result-container">
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+
+        function nextQuestion(answer) {
+            document.querySelector(`#question-${currentQuestion}`).classList.add('hidden');
+            document.querySelector(`input[name="${currentQuestion === 1 ? 'shortness_of_breath' : currentQuestion === 2 ? 'sore_throat' : currentQuestion === 3 ? 'cough' : currentQuestion === 4 ? 'fever' : 'head_ache'}"]`).value = answer;
+            currentQuestion++;
+
+            if (currentQuestion <= 5) {
+                document.getElementById(`question-${currentQuestion}`).classList.remove('hidden');
+            } else {
+                // Submit the form when all questions are answered
+                document.getElementById('symptom-form').classList.add('hidden');
+                document.getElementById('result-container').classList.remove('hidden');
+                const symptoms = {
+                    shortness_of_breath: document.querySelector('input[name="shortness_of_breath"]').value,
+                    sore_throat: document.querySelector('input[name="sore_throat"]').value,
+                    cough: document.querySelector('input[name="cough"]').value,
+                    fever: document.querySelector('input[name="fever"]').value,
+                    head_ache: document.querySelector('input[name="head_ache"]').value
+                };
+                const resultElement = document.getElementById('result');
+
+                // Lógica para determinar el resultado
+                if (symptoms.shortness_of_breath === 'No' &&
+                    symptoms.sore_throat === 'No' &&
+                    symptoms.cough === 'No' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.sore_throat === 'No' &&
+                    symptoms.cough === 'No' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Positivo';
+                    resultElement.classList.add('positive');
+                } else if (symptoms.sore_throat === 'Sí' &&
+                    symptoms.cough === 'No' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.shortness_of_breath === 'No' &&
+                    symptoms.cough === 'Sí' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.sore_throat === 'No' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.cough === 'Sí' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Positivo';
+                    resultElement.classList.add('positive');
+                } else if (symptoms.sore_throat === 'Sí' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.cough === 'Sí' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.shortness_of_breath === 'No' &&
+                    symptoms.fever === 'Sí' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.fever === 'Sí' &&
+                    symptoms.head_ache === 'No') {
+                    resultElement.innerText = 'Resultado: Positivo';
+                    resultElement.classList.add('positive');
+                } else if (symptoms.shortness_of_breath === 'No' &&
+                    symptoms.head_ache === 'Sí') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.sore_throat === 'No' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.sore_throat === 'No' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.head_ache === 'Sí') {
+                    resultElement.innerText = 'Resultado: Positivo';
+                    resultElement.classList.add('positive');
+                } else if (symptoms.cough === 'Sí' &&
+                    symptoms.fever === 'No' &&
+                    symptoms.sore_throat === 'No' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.head_ache === 'Sí') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else if (symptoms.fever === 'Sí' &&
+                    symptoms.sore_throat === 'No' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.head_ache === 'Sí') {
+                    resultElement.innerText = 'Resultado: Positivo';
+                    resultElement.classList.add('positive');
+                } else if (symptoms.sore_throat === 'Sí' &&
+                    symptoms.shortness_of_breath === 'Sí' &&
+                    symptoms.head_ache === 'Sí') {
+                    resultElement.innerText = 'Resultado: Negativo';
+                    resultElement.classList.add('negative');
+                } else {
+                    // Respuesta inconclusa si no coincide con ninguna regla
+                    resultElement.innerText = 'Resultado: Inconcluso';
+                    resultElement.classList.add('inconclusive');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
